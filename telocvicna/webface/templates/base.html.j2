@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tělocvična</title>
+    <meta charset="utf-8" /> 
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favico.png') }}" />
+</head>
+<body>
+
+<h1>Tělocvična</h1>
+
+{% if 'login' in session%}
+
+<p>Jsi přihlášen jako <em>{{session['login']}}</em>.
+<a href="{{url_for('logout')}}">Odhlásit se.</a>
+</p>
+
+{% else %}
+
+<form method="post" action="{{url_for('login')}}"> 
+    Jmeno:<input name="login" type="text" /> <br />
+    Heslo:<input name="heslo" type="password" /> <br />
+    <button>Přihlas mě!</button>
+</form>
+
+{% endif %}
+
+
+{% if 'login' in session%}
+
+{% with messages = get_flashed_messages() %}
+   {% if messages %}
+      {% for message in messages %}
+         <p style="color:red;">{{ message }}</p>
+      {% endfor %}
+   {% endif %}
+{% endwith %}
+
+<ul>
+{%for sal, zacatek, konec in objednavky %}
+<li>{{sal}}, {{zacatek}}, {{konec}}</li>
+{%endfor%}
+</ul>
+
+Sál:<br />
+
+
+<form action="{{url_for('objednavka')}}" method="post">
+    <p>
+    {% for id, jmeno in seznam_salu %}
+        <input type="radio" name="sal_id" value="{{id}}" id="sal_{{id}}"
+        {%- set sal = request.args.get('sal_id') -%}
+        {% if sal == str(id) %}
+            checked="checked"
+        {%- endif %}>
+        <label for="sal_{{id}}">{{jmeno}}</label><br>
+    {% endfor %}
+    </p>
+    <table>
+        <tr>
+            <td>Datum:</td>
+            <td><input type="date" name="datum"
+                value="{{request.args.get('datum') or ''}}"/> </td>
+        </tr>
+        <tr>
+            <td>Začátek:</td>
+            <td><input type="time" name="zacatek"
+                 value="{{request.args.get('zacatek') or ''}}"/> </td>
+        </tr>
+        <tr>
+            <td>Konec:</td>
+            <td><input type="time" name="konec"
+                value="{{request.args.get('konec') or ''}}"/> </td>
+        </tr>
+    </table>
+    
+    <p><button>Odeslat</button></p>
+</form>
+
+
+{% filter markdown %}
+I'm writing my templates in *Markdown!*
+Toto je [odkaz na google](http://google.com/).
+<strong>ahoj</strong>
+
+    ahoj
+    zdroják
+
+{% endfilter %}
+{% else %}
+<p>Sorry, ale musíš se přihlásit!</p>
+{% endif %}
+
+</body></html>
